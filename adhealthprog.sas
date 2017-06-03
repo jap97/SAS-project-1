@@ -1,0 +1,54 @@
+LIBNAME mydata "/courses/d1406ae5ba27fe300 " access=readonly;
+DATA new ; set mydata.addhealth_pds ;
+LABEL H1RE2 = "The scripture is sacred"
+	  H1RE3 = "Done religious service in past 12 months" 
+	  H1RE4 = "How important is your religion to you " ;	  
+	  
+	   
+					/*DATA MANAGEMENT */
+					
+					
+ /*CREATING VALID DATA FOR THE RESEARCH */
+	  if H1RE3 GE 6 THEN H1RE3 = . ;	
+	  if H1RE2 GE 6 then H1RE2 = . ; 
+	  if H1RE4 GE 6 THEN H1RE4 = . ;
+
+	  
+/* CONVERTING MISSING DATA INTO VALID */	  
+	  IF H1RE3 = . THEN H1RE3 = 10 ;
+	  
+/* COLLAPSING RESPONSE VARIABLE INTO 2 CATEGORY (CREATING VARIABLE WEEK )
+    1 - RELIGIOUS SERVICE ONCE A WEEK AND MORE 
+    0 - MORE THAN A WEEK & NEVER */
+    
+    IF H1RE3 = 1 THEN WEEK = 1 ;
+    ELSE IF H1RE3 NE . THEN WEEK = 0 ;
+    
+/* COLLAPSING VARIABLE H1RE4 INTO 2 CATEGORY VARIABLE 
+    1 - VERY IMPORTANT 
+    0 - NOT IMPORTANT   */
+   
+   
+   if H1RE4 LE 2 THEN IMP = 1 ;
+   ELSE IF H1RE4 LE 4 THEN IMP = 0 ; 
+   	 
+
+PROC sort ; by AID ;
+proc SORT ; BY IMP ;
+
+ /*INFERENTIAL STATISTICS */
+      
+proc freq ; tables WEEK*H1RE2/CHISQ;
+BY IMP ;
+PROC GCHART ; VBAR H1RE2/DISCRETE TYPE=MEAN SUMVAR= WEEK ;
+
+PROC FREQ ; TABLES WEEK*RIMP/CHISQ ;
+
+
+	/* VISUALIZATION */
+	
+PROC GCHART ; VBAR H1RE2 H1RE3 H1RE4/DISCRETE TYPE=PCT WIDTH=20 ; 
+
+PROC GCHART ; VBAR H1RE4 / DISCRETE TYPE=MEAN SUMVAR= WEEK  ; 
+
+RUN;
